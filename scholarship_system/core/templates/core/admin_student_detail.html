@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% block title %}Student Detail - Admin{% endblock %}
+{% block content %}
+<div class="d-flex">
+    <div class="sidebar d-none d-md-block">
+        <div class="p-3 border-bottom border-secondary">
+            <div class="d-flex align-items-center text-white">
+                <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;"><i class="bi bi-shield-fill"></i></div>
+                <div><div class="fw-semibold small">{{ user.get_full_name|default:user.username }}</div><div class="text-muted" style="font-size:0.75rem;">Administrator</div></div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a class="nav-link" href="{% url 'admin_applications' %}"><i class="bi bi-file-earmark-text"></i>Applications</a>
+            <a class="nav-link" href="{% url 'admin_scholarships' %}"><i class="bi bi-award"></i>Scholarships</a>
+            <a class="nav-link active" href="{% url 'admin_students' %}"><i class="bi bi-people"></i>Students</a>
+            <a class="nav-link" href="{% url 'admin_payments' %}"><i class="bi bi-credit-card"></i>Payments</a>
+            <a class="nav-link" href="{% url 'admin_reports' %}"><i class="bi bi-bar-chart"></i>Reports</a>
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+    </div>
+    <div class="main-content w-100">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_students' %}">Students</a></li>
+                <li class="breadcrumb-item active">{{ student.get_full_name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center p-4">
+                        <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3" style="width:80px;height:80px;">
+                            <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">{{ student.get_full_name }}</h5>
+                        <p class="text-muted small mb-1">{{ student.email }}</p>
+                        {% if student.phone_number %}<p class="text-muted small mb-1">{{ student.phone_number }}</p>{% endif %}
+                        <span class="badge bg-primary px-3 py-2">Student</span>
+                    </div>
+                </div>
+                {% if profile %}
+                <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0">Academic Profile</h6>
+                    </div>
+                    <div class="card-body small">
+                        <div class="row g-2">
+                            <div class="col-5 text-muted">Student ID:</div><div class="col-7 fw-semibold">{{ profile.student_id }}</div>
+                            <div class="col-5 text-muted">Institution:</div><div class="col-7">{{ profile.institution|default:"N/A" }}</div>
+                            <div class="col-5 text-muted">Faculty:</div><div class="col-7">{{ profile.faculty|default:"N/A" }}</div>
+                            <div class="col-5 text-muted">Course:</div><div class="col-7">{{ profile.course|default:"N/A" }}</div>
+                            <div class="col-5 text-muted">Level:</div><div class="col-7">{{ profile.get_study_level_display|default:"N/A" }}</div>
+                            <div class="col-5 text-muted">Year:</div><div class="col-7">{{ profile.year_of_study|default:"N/A" }}</div>
+                            <div class="col-5 text-muted">GPA:</div><div class="col-7 fw-semibold text-primary">{{ profile.gpa|default:"N/A" }}</div>
+                            <div class="col-5 text-muted">Family Income:</div><div class="col-7">{% if profile.annual_family_income %}${{ profile.annual_family_income|floatformat:0 }}{% else %}N/A{% endif %}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2 text-primary"></i>Application History</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="px-4 py-3">Scholarship</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for app in applications %}
+                                    <tr>
+                                        <td class="px-4 py-3 small fw-semibold">{{ app.scholarship.name|truncatechars:40 }}</td>
+                                        <td class="py-3 text-success fw-bold">${{ app.scholarship.amount|floatformat:0 }}</td>
+                                        <td class="py-3"><span class="status-badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+                                        <td class="py-3 text-muted small">{{ app.submitted_at|date:"M d, Y" }}</td>
+                                        <td class="py-3">
+                                            <a href="{% url 'admin_review_application' app.pk %}" class="btn btn-sm btn-outline-primary">Review</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="5" class="text-center py-4 text-muted">No applications submitted.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'core/base.html' %}
+{% block title %}Manage Applications - Admin{% endblock %}
+{% block content %}
+<div class="d-flex">
+    <div class="sidebar d-none d-md-block">
+        <div class="p-3 border-bottom border-secondary">
+            <div class="d-flex align-items-center text-white">
+                <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;"><i class="bi bi-shield-fill"></i></div>
+                <div><div class="fw-semibold small">{{ user.get_full_name|default:user.username }}</div><div class="text-muted" style="font-size:0.75rem;">Administrator</div></div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <span class="sidebar-section">Overview</span>
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <span class="sidebar-section">Management</span>
+            <a class="nav-link active" href="{% url 'admin_applications' %}"><i class="bi bi-file-earmark-text"></i>Applications</a>
+            <a class="nav-link" href="{% url 'admin_scholarships' %}"><i class="bi bi-award"></i>Scholarships</a>
+            <a class="nav-link" href="{% url 'admin_students' %}"><i class="bi bi-people"></i>Students</a>
+            <a class="nav-link" href="{% url 'admin_payments' %}"><i class="bi bi-credit-card"></i>Payments</a>
+            <span class="sidebar-section">Analytics</span>
+            <a class="nav-link" href="{% url 'admin_reports' %}"><i class="bi bi-bar-chart"></i>Reports</a>
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+    </div>
+    <div class="main-content w-100">
+        <div class="page-header">
+            <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2"></i>Manage Applications</h2>
+            <p class="mb-0 opacity-75">Review and process student scholarship applications</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body py-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            {% for val, label in status_choices %}
+                            <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Scholarship</label>
+                        <select name="scholarship" class="form-select">
+                            <option value="">All Scholarships</option>
+                            {% for s in scholarships %}
+                            <option value="{{ s.pk }}" {% if scholarship_filter == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.name|truncatechars:40 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'admin_applications' %}" class="btn btn-outline-secondary w-100">Clear</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">Applications ({{ applications.count }})</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-3">#</th>
+                                <th>Student</th>
+                                <th>Scholarship</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                            <tr>
+                                <td class="px-4 py-3 text-muted">{{ forloop.counter }}</td>
+                                <td class="py-3">
+                                    <div class="fw-semibold small">{{ app.student.get_full_name }}</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">{{ app.student.email }}</div>
+                                </td>
+                                <td class="py-3 small">{{ app.scholarship.name|truncatechars:40 }}</td>
+                                <td class="py-3 text-success fw-bold">${{ app.scholarship.amount|floatformat:0 }}</td>
+                                <td class="py-3"><span class="status-badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+                                <td class="py-3 text-muted small">{{ app.submitted_at|date:"M d, Y" }}</td>
+                                <td class="py-3">
+                                    <a href="{% url 'admin_review_application' app.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye me-1"></i>Review
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="7" class="text-center py-5 text-muted">No applications found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

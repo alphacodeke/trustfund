@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% block title %}Update Payment - Admin{% endblock %}
+{% block content %}
+<div class="d-flex">
+    <div class="sidebar d-none d-md-block">
+        <div class="p-3 border-bottom border-secondary">
+            <div class="d-flex align-items-center text-white">
+                <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;"><i class="bi bi-shield-fill"></i></div>
+                <div><div class="fw-semibold small">{{ user.get_full_name|default:user.username }}</div><div class="text-muted" style="font-size:0.75rem;">Administrator</div></div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a class="nav-link" href="{% url 'admin_applications' %}"><i class="bi bi-file-earmark-text"></i>Applications</a>
+            <a class="nav-link" href="{% url 'admin_scholarships' %}"><i class="bi bi-award"></i>Scholarships</a>
+            <a class="nav-link" href="{% url 'admin_students' %}"><i class="bi bi-people"></i>Students</a>
+            <a class="nav-link active" href="{% url 'admin_payments' %}"><i class="bi bi-credit-card"></i>Payments</a>
+            <a class="nav-link" href="{% url 'admin_reports' %}"><i class="bi bi-bar-chart"></i>Reports</a>
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+    </div>
+    <div class="main-content w-100">
+        <div class="page-header">
+            <h2 class="fw-bold mb-1"><i class="bi bi-credit-card me-2"></i>Update Payment Record</h2>
+            <p class="mb-0 opacity-75">Reference: {{ payment.reference_number }}</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0">Payment Information</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-info small mb-4">
+                            <strong>Student:</strong> {{ payment.application.student.get_full_name }}<br>
+                            <strong>Scholarship:</strong> {{ payment.application.scholarship.name }}
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Amount ($)</label>
+                                <input type="number" name="amount" class="form-control" step="0.01" value="{{ form.amount.value|default:payment.amount }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Reference Number</label>
+                                <input type="text" name="reference_number" class="form-control" value="{{ form.reference_number.value|default:payment.reference_number }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Payment Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="pending" {% if payment.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="processed" {% if payment.status == 'processed' %}selected{% endif %}>Processed</option>
+                                    <option value="failed" {% if payment.status == 'failed' %}selected{% endif %}>Failed</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Payment Date</label>
+                                <input type="date" name="payment_date" class="form-control" value="{{ form.payment_date.value|default:'' }}">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Notes</label>
+                                <textarea name="notes" class="form-control" rows="3">{{ form.notes.value|default:payment.notes }}</textarea>
+                            </div>
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                                    <i class="bi bi-save me-2"></i>Update Payment
+                                </button>
+                                <a href="{% url 'admin_payments' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

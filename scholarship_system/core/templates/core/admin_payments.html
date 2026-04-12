@@ -1,0 +1,74 @@
+{% extends 'core/base.html' %}
+{% block title %}Payments - Admin{% endblock %}
+{% block content %}
+<div class="d-flex">
+    <div class="sidebar d-none d-md-block">
+        <div class="p-3 border-bottom border-secondary">
+            <div class="d-flex align-items-center text-white">
+                <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;"><i class="bi bi-shield-fill"></i></div>
+                <div><div class="fw-semibold small">{{ user.get_full_name|default:user.username }}</div><div class="text-muted" style="font-size:0.75rem;">Administrator</div></div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a class="nav-link" href="{% url 'admin_applications' %}"><i class="bi bi-file-earmark-text"></i>Applications</a>
+            <a class="nav-link" href="{% url 'admin_scholarships' %}"><i class="bi bi-award"></i>Scholarships</a>
+            <a class="nav-link" href="{% url 'admin_students' %}"><i class="bi bi-people"></i>Students</a>
+            <a class="nav-link active" href="{% url 'admin_payments' %}"><i class="bi bi-credit-card"></i>Payments</a>
+            <a class="nav-link" href="{% url 'admin_reports' %}"><i class="bi bi-bar-chart"></i>Reports</a>
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+    </div>
+    <div class="main-content w-100">
+        <div class="page-header">
+            <h2 class="fw-bold mb-1"><i class="bi bi-credit-card me-2"></i>Fund Allocation & Payments</h2>
+            <p class="mb-0 opacity-75">Manage payment records for approved scholarship recipients</p>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-3">Reference</th>
+                                <th>Student</th>
+                                <th>Scholarship</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td class="px-4 py-3 fw-semibold small text-primary">{{ payment.reference_number }}</td>
+                                <td class="py-3">
+                                    <div class="fw-semibold small">{{ payment.application.student.get_full_name }}</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">{{ payment.application.student.email }}</div>
+                                </td>
+                                <td class="py-3 small text-muted">{{ payment.application.scholarship.name|truncatechars:35 }}</td>
+                                <td class="py-3 text-success fw-bold">${{ payment.amount|floatformat:2 }}</td>
+                                <td class="py-3">
+                                    <span class="badge {% if payment.status == 'processed' %}bg-success{% elif payment.status == 'pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                        {{ payment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="py-3 text-muted small">{{ payment.payment_date|default:"Not set" }}</td>
+                                <td class="py-3">
+                                    <a href="{% url 'admin_payment_update' payment.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil me-1"></i>Update
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="7" class="text-center py-5 text-muted">No payment records yet. Approve applications to generate payments.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

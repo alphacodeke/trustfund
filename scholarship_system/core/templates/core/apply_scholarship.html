@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% block title %}Apply - {{ scholarship.name }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'scholarships_list' %}">Scholarships</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'scholarship_detail' scholarship.pk %}">{{ scholarship.name|truncatechars:30 }}</a></li>
+            <li class="breadcrumb-item active">Apply</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2"></i>Scholarship Application Form</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Applying for:</strong> {{ scholarship.name }} — <strong class="text-success">${{ scholarship.amount|floatformat:0 }}</strong>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ field.label }} <span class="text-danger">*</span></label>
+                            <textarea name="{{ field.html_name }}" class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                      rows="{{ field.field.widget.attrs.rows|default:5 }}"
+                                      placeholder="{{ field.field.widget.attrs.placeholder|default:'' }}">{{ field.value|default:'' }}</textarea>
+                            {% if field.errors %}<div class="invalid-feedback">{{ field.errors.0 }}</div>{% endif %}
+                            <div class="form-text text-muted small">{{ field.help_text }}</div>
+                        </div>
+                        {% endfor %}
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                                <i class="bi bi-send me-2"></i>Submit Application
+                            </button>
+                            <a href="{% url 'scholarship_detail' scholarship.pk %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-light py-3">
+                    <h6 class="fw-bold mb-0">Application Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Be specific and honest in your personal statement</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Clearly describe your financial need</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Mention academic achievements and extracurriculars</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Upload all required documents after submitting</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>You will receive an email confirmation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
