@@ -1,9 +1,22 @@
-.env
-venv
+# Python
 __pycache__/
-db.sqlite3
 *.pyc
 *.pyo
-*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Django
+db.sqlite3
 *.log
-*.pot
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
