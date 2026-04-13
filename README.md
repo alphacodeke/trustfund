@@ -1,10 +1,11 @@
+# Trustfund
+
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Django](https://img.shields.io/badge/Django-Backend-darkgreen?logo=django&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-Frontend-yellow?logo=javascript&logoColor=black)
 ![MySQL](https://img.shields.io/badge/MySQL-Database-blue?logo=mysql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-# trustfund
 TrustFund is a centralized digital scholarship management system designed to simplify and streamline the entire scholarship lifecycle for both applicants and administrators. The platform allows students to easily apply for scholarships by filling out structured forms, uploading required documents, and tracking the status of their applications in real time. This eliminates the need for manual submissions and reduces delays associated with traditional processes.
 
 On the administrative side, TrustFund provides a powerful dashboard for managing applications efficiently. Administrators can review submissions, verify applicant information, shortlist candidates based on predefined criteria, and approve or reject applications with ease. The system also supports document validation and helps ensure that only eligible candidates receive funding.
