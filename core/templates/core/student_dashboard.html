@@ -1,0 +1,187 @@
+{% extends 'core/base.html' %}
+{% block title %}Student Dashboard - ScholarshipMS{% endblock %}
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar d-none d-md-block">
+        <div class="p-3 border-bottom border-secondary">
+            <div class="d-flex align-items-center text-white">
+                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                    <div class="fw-semibold small">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="text-muted" style="font-size:0.75rem;">Student</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <span class="sidebar-section">Main</span>
+            <a class="nav-link active" href="{% url 'student_dashboard' %}"><i class="bi bi-grid-fill"></i>Dashboard</a>
+            <a class="nav-link" href="{% url 'scholarships_list' %}"><i class="bi bi-search"></i>Browse Scholarships</a>
+            <a class="nav-link" href="{% url 'my_applications' %}"><i class="bi bi-file-earmark-text"></i>My Applications</a>
+            <span class="sidebar-section">Account</span>
+            <a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person"></i>My Profile</a>
+            <a class="nav-link" href="{% url 'notifications' %}"><i class="bi bi-bell"></i>Notifications</a>
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content w-100">
+        <div class="page-header">
+            <h2 class="fw-bold mb-1"><i class="bi bi-grid-fill me-2"></i>Student Dashboard</h2>
+            <p class="mb-0 opacity-75">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card" style="background: linear-gradient(135deg, #1a56db, #1e429f);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-value">{{ stats.total }}</div>
+                            <div class="stat-label">Total Applications</div>
+                        </div>
+                        <i class="bi bi-file-earmark-text stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-value">{{ stats.pending }}</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <i class="bi bi-hourglass-split stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-value">{{ stats.approved }}</div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                        <i class="bi bi-check-circle stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-value">{{ stats.rejected }}</div>
+                            <div class="stat-label">Rejected</div>
+                        </div>
+                        <i class="bi bi-x-circle stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Recent Applications -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Applications</h6>
+                        <a href="{% url 'my_applications' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if applications %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="px-4 py-3">Scholarship</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for app in applications %}
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <div class="fw-semibold small">{{ app.scholarship.name|truncatechars:40 }}</div>
+                                            <div class="text-muted" style="font-size:0.75rem;">{{ app.scholarship.get_scholarship_type_display }}</div>
+                                        </td>
+                                        <td class="py-3 text-success fw-semibold">${{ app.scholarship.amount|floatformat:0 }}</td>
+                                        <td class="py-3">
+                                            <span class="status-badge badge-{{ app.status }}">{{ app.get_status_display }}</span>
+                                        </td>
+                                        <td class="py-3 text-muted small">{{ app.submitted_at|date:"M d, Y" }}</td>
+                                        <td class="py-3">
+                                            <a href="{% url 'application_detail' app.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-file-earmark-x fs-1 d-block mb-3 opacity-50"></i>
+                            <p class="mb-3">No applications yet.</p>
+                            <a href="{% url 'scholarships_list' %}" class="btn btn-primary btn-sm">Browse Scholarships</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar: Notifications + Available Scholarships -->
+            <div class="col-lg-4">
+                {% if notifications %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-bell me-2 text-warning"></i>Notifications</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for notif in notifications %}
+                        <div class="p-3 border-bottom">
+                            <div class="fw-semibold small">{{ notif.title }}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">{{ notif.message|truncatechars:80 }}</div>
+                            <div class="text-muted" style="font-size:0.72rem;">{{ notif.created_at|timesince }} ago</div>
+                        </div>
+                        {% endfor %}
+                        <div class="p-2 text-center">
+                            <a href="{% url 'notifications' %}" class="btn btn-sm btn-outline-warning">View All</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-star me-2 text-success"></i>Open Scholarships</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for s in available_scholarships %}
+                        <div class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-semibold small">{{ s.name|truncatechars:35 }}</div>
+                                <span class="text-success fw-bold small">${{ s.amount|floatformat:0 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <span class="text-muted" style="font-size:0.75rem;"><i class="bi bi-calendar me-1"></i>{{ s.application_deadline }}</span>
+                                <a href="{% url 'scholarship_detail' s.pk %}" class="btn btn-xs btn-outline-primary" style="font-size:0.72rem;padding:2px 8px;">Apply</a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-3 text-muted text-center small">No open scholarships at this time.</div>
+                        {% endfor %}
+                        <div class="p-2 text-center">
+                            <a href="{% url 'scholarships_list' %}" class="btn btn-sm btn-outline-success">Browse All</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

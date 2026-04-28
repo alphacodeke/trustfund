@@ -1,0 +1,193 @@
+{% extends "core/base.html" %}
+
+{% block title %}Sponsor via M-Pesa – TrustFund{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <div class="text-center mb-4">
+            <span class="fs-1">📱</span>
+            <h2 class="h4 fw-bold mt-2 mb-0">Send Funds via M-Pesa</h2>
+            <p class="text-muted small mt-1">
+              You will receive an STK push on your phone to confirm payment.
+            </p>
+          </div>
+
+          <!-- Alert area (hidden initially) -->
+          <div id="alert-box" class="alert d-none" role="alert"></div>
+
+          <!-- Payment form -->
+          <div id="form-section">
+            <div class="mb-3">
+              <label for="phone_number" class="form-label fw-semibold">
+                Phone Number
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">🇰🇪</span>
+                <input
+                  type="tel"
+                  id="phone_number"
+                  class="form-control"
+                  placeholder="07XXXXXXXX or 2547XXXXXXXX"
+                  maxlength="13"
+                  autocomplete="tel"
+                />
+              </div>
+              <div class="form-text">
+                Accepts: <code>07XXXXXXXX</code> or <code>2547XXXXXXXX</code>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="amount" class="form-label fw-semibold">Amount (KES)</label>
+              <div class="input-group">
+                <span class="input-group-text">KES</span>
+                <input
+                  type="number"
+                  id="amount"
+                  class="form-control"
+                  placeholder="e.g. 500"
+                  min="1"
+                  max="150000"
+                  step="1"
+                />
+              </div>
+              <div class="form-text">Minimum KES 1 · Maximum KES 150,000</div>
+            </div>
+
+            <div class="d-grid">
+              <button
+                id="pay-btn"
+                class="btn btn-success btn-lg fw-semibold"
+                onclick="initiatePayment()"
+              >
+                💚 Pay with M-Pesa
+              </button>
+            </div>
+          </div><!-- /form-section -->
+
+          <!-- Success section (hidden initially) -->
+          <div id="success-section" class="text-center d-none">
+            <div class="fs-1 mb-2">✅</div>
+            <h5 class="fw-bold text-success">STK Push Sent!</h5>
+            <p class="text-muted">
+              Check your phone and enter your M-Pesa PIN to complete the payment.
+            </p>
+            <p class="text-muted small">
+              If you do not receive a prompt within 30 seconds, tap
+              <strong>Try Again</strong>.
+            </p>
+            <button class="btn btn-outline-secondary btn-sm mt-2" onclick="resetForm()">
+              ← Make another payment
+            </button>
+          </div>
+
+        </div><!-- /card-body -->
+      </div><!-- /card -->
+
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * Normalise a Kenyan phone number to 2547XXXXXXXX format.
+   * Accepts: 07XXXXXXXX, 2547XXXXXXXX
+   */
+  function normalisePhone(raw) {
+    const stripped = raw.replace(/\s+/g, '');
+    if (/^0[17]\d{8}$/.test(stripped)) {
+      return '254' + stripped.slice(1);
+    }
+    return stripped;
+  }
+
+  async function initiatePayment() {
+    const rawPhone = document.getElementById('phone_number').value.trim();
+    const amount   = document.getElementById('amount').value.trim();
+    const btn      = document.getElementById('pay-btn');
+
+    hideAlert();
+
+    // --- Client-side validation ---
+    const phone = normalisePhone(rawPhone);
+
+    if (!/^254(7|1)\d{8}$/.test(phone)) {
+      showAlert('danger', 'Phone number must be 07XXXXXXXX or 2547XXXXXXXX (Safaricom/Airtel).');
+      return;
+    }
+
+    const amountNum = parseFloat(amount);
+    if (!amount || isNaN(amountNum) || amountNum < 1) {
+      showAlert('danger', 'Please enter a valid amount of at least KES 1.');
+      return;
+    }
+    if (amountNum > 150000) {
+      showAlert('danger', 'Amount cannot exceed KES 150,000 per transaction.');
+      return;
+    }
+
+    // --- Disable button & show spinner ---
+    btn.disabled    = true;
+    btn.innerHTML   = '<span class="spinner-border spinner-border-sm me-2"></span>Sending…';
+
+    try {
+      const response = await fetch('/api/payments/stk-push/', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ phone_number: phone, amount: Math.floor(amountNum) }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 429) {
+        showAlert('warning', data.error || 'A request was already sent. Please wait a moment.');
+        return;
+      }
+      if (response.status === 503) {
+        showAlert('danger', 'Payment service is temporarily unavailable. Please try again later.');
+        return;
+      }
+      if (!response.ok || !data.success) {
+        showAlert('danger', data.error || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      // Success → show confirmation panel
+      document.getElementById('form-section').classList.add('d-none');
+      document.getElementById('success-section').classList.remove('d-none');
+
+    } catch (err) {
+      showAlert('danger', 'Network error. Please check your connection and try again.');
+    } finally {
+      btn.disabled  = false;
+      btn.innerHTML = '💚 Pay with M-Pesa';
+    }
+  }
+
+  function showAlert(type, message) {
+    const box      = document.getElementById('alert-box');
+    box.className  = `alert alert-${type}`;
+    box.textContent = message;
+    box.classList.remove('d-none');
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideAlert() {
+    document.getElementById('alert-box').classList.add('d-none');
+  }
+
+  function resetForm() {
+    document.getElementById('phone_number').value = '';
+    document.getElementById('amount').value       = '';
+    document.getElementById('form-section').classList.remove('d-none');
+    document.getElementById('success-section').classList.add('d-none');
+    hideAlert();
+  }
+</script>
+{% endblock %}

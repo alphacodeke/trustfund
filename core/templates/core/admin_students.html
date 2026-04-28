@@ -1,0 +1,96 @@
+{% extends 'core/base.html' %}
+{% block title %}Manage Students - Admin{% endblock %}
+{% block content %}
+<div class="d-flex">
+    <div class="sidebar d-none d-md-block">
+        <div class="p-3 border-bottom border-secondary">
+            <div class="d-flex align-items-center text-white">
+                <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px;"><i class="bi bi-shield-fill"></i></div>
+                <div><div class="fw-semibold small">{{ user.get_full_name|default:user.username }}</div><div class="text-muted" style="font-size:0.75rem;">Administrator</div></div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a class="nav-link" href="{% url 'admin_applications' %}"><i class="bi bi-file-earmark-text"></i>Applications</a>
+            <a class="nav-link" href="{% url 'admin_scholarships' %}"><i class="bi bi-award"></i>Scholarships</a>
+            <a class="nav-link active" href="{% url 'admin_students' %}"><i class="bi bi-people"></i>Students</a>
+            <a class="nav-link" href="{% url 'admin_payments' %}"><i class="bi bi-credit-card"></i>Payments</a>
+            <a class="nav-link" href="{% url 'admin_reports' %}"><i class="bi bi-bar-chart"></i>Reports</a>
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+    </div>
+    <div class="main-content w-100">
+        <div class="page-header">
+            <h2 class="fw-bold mb-1"><i class="bi bi-people me-2"></i>Student Management</h2>
+            <p class="mb-0 opacity-75">View and manage registered students</p>
+        </div>
+
+        <!-- Search -->
+        <div class="card mb-4">
+            <div class="card-body py-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Search Students</label>
+                        <input type="text" name="search" class="form-control" placeholder="Name, email, or student ID..." value="{{ search }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Search</button>
+                    </div>
+                    {% if search %}
+                    <div class="col-md-2">
+                        <a href="{% url 'admin_students' %}" class="btn btn-outline-secondary w-100">Clear</a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0">Students ({{ students.count }})</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-3">#</th>
+                                <th>Student</th>
+                                <th>Student ID</th>
+                                <th>Institution</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td class="px-4 py-3 text-muted">{{ forloop.counter }}</td>
+                                <td class="py-3">
+                                    <div class="fw-semibold small">{{ student.get_full_name }}</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">{{ student.email }}</div>
+                                </td>
+                                <td class="py-3 small">
+                                    {% if student.student_profile %}{{ student.student_profile.student_id }}{% else %}<span class="text-muted">N/A</span>{% endif %}
+                                </td>
+                                <td class="py-3 small text-muted">
+                                    {% if student.student_profile %}{{ student.student_profile.institution|default:"N/A" }}{% else %}N/A{% endif %}
+                                </td>
+                                <td class="py-3 text-muted small">{{ student.created_at|date:"M d, Y" }}</td>
+                                <td class="py-3">
+                                    <a href="{% url 'admin_student_detail' student.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="6" class="text-center py-5 text-muted">No students found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

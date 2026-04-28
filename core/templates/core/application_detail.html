@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+{% block title %}Application Detail - ScholarshipMS{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'my_applications' %}">My Applications</a></li>
+            <li class="breadcrumb-item active">Application #{{ application.pk }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Application Details</h5>
+                    <span class="status-badge badge-{{ application.status }} fs-6">{{ application.get_status_display }}</span>
+                </div>
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-1">{{ application.scholarship.name }}</h4>
+                    <p class="text-muted mb-4">{{ application.scholarship.get_scholarship_type_display }} — {{ application.scholarship.academic_year }}</p>
+
+                    <h6 class="fw-semibold text-primary mb-2">Personal Statement</h6>
+                    <div class="bg-light rounded p-3 mb-4">{{ application.personal_statement }}</div>
+
+                    <h6 class="fw-semibold text-primary mb-2">Financial Need Description</h6>
+                    <div class="bg-light rounded p-3 mb-4">{{ application.financial_need_description }}</div>
+
+                    {% if application.academic_achievements %}
+                    <h6 class="fw-semibold text-primary mb-2">Academic Achievements</h6>
+                    <div class="bg-light rounded p-3 mb-4">{{ application.academic_achievements }}</div>
+                    {% endif %}
+
+                    {% if application.review_notes %}
+                    <h6 class="fw-semibold text-warning mb-2"><i class="bi bi-chat-left-text me-1"></i>Reviewer Notes</h6>
+                    <div class="bg-warning bg-opacity-10 border border-warning rounded p-3">{{ application.review_notes }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="card">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-paperclip me-2"></i>Uploaded Documents</h6>
+                    <a href="{% url 'upload_documents' application.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus me-1"></i>Add Document
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if documents %}
+                    {% for doc in documents %}
+                    <div class="p-3 border-bottom d-flex align-items-center">
+                        <i class="bi bi-file-earmark text-primary fs-4 me-3"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">{{ doc.get_document_type_display }}</div>
+                            <div class="text-muted" style="font-size:0.75rem;">{{ doc.original_filename }}</div>
+                        </div>
+                        <span class="text-muted small">{{ doc.uploaded_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-file-earmark-x fs-2 d-block mb-2 opacity-50"></i>
+                        <p class="small mb-2">No documents uploaded.</p>
+                        <a href="{% url 'upload_documents' application.pk %}" class="btn btn-sm btn-outline-primary">Upload Now</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Award Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-trophy me-2"></i>Award Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 pb-3 border-bottom text-center">
+                        <div class="text-muted small mb-1">Award Amount</div>
+                        <div class="fs-2 fw-bold text-success">${{ application.scholarship.amount|floatformat:2 }}</div>
+                    </div>
+                    <div class="row g-2 small">
+                        <div class="col-6 text-muted">Submitted:</div>
+                        <div class="col-6 fw-semibold">{{ application.submitted_at|date:"M d, Y" }}</div>
+                        {% if application.reviewed_at %}
+                        <div class="col-6 text-muted">Reviewed:</div>
+                        <div class="col-6 fw-semibold">{{ application.reviewed_at|date:"M d, Y" }}</div>
+                        {% endif %}
+                        {% if application.reviewed_by %}
+                        <div class="col-6 text-muted">Reviewed by:</div>
+                        <div class="col-6 fw-semibold">{{ application.reviewed_by.get_full_name }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            {% if payment %}
+            <div class="card">
+                <div class="card-header bg-success text-white py-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-credit-card me-2"></i>Payment Information</h6>
+                </div>
+                <div class="card-body small">
+                    <div class="row g-2">
+                        <div class="col-6 text-muted">Reference:</div>
+                        <div class="col-6 fw-semibold">{{ payment.reference_number }}</div>
+                        <div class="col-6 text-muted">Amount:</div>
+                        <div class="col-6 fw-semibold text-success">${{ payment.amount|floatformat:2 }}</div>
+                        <div class="col-6 text-muted">Status:</div>
+                        <div class="col-6">
+                            <span class="badge {% if payment.status == 'processed' %}bg-success{% elif payment.status == 'pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </div>
+                        {% if payment.payment_date %}
+                        <div class="col-6 text-muted">Payment Date:</div>
+                        <div class="col-6 fw-semibold">{{ payment.payment_date }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

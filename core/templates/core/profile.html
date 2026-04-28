@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% block title %}My Profile - ScholarshipMS{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="page-header">
+        <h2 class="fw-bold mb-1"><i class="bi bi-person-circle me-2"></i>My Profile</h2>
+        <p class="mb-0 opacity-75">Keep your information up to date for accurate scholarship matching</p>
+    </div>
+    <div class="card">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-person me-2"></i>Personal Information</h5>
+                <div class="row g-3 mb-4">
+                    {% for field in user_form %}
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">{{ field.label }}</label>
+                        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+                               class="form-control {% if field.errors %}is-invalid{% endif %}"
+                               value="{{ field.value|default:'' }}">
+                        {% if field.errors %}<div class="invalid-feedback">{{ field.errors.0 }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <hr>
+                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-mortarboard me-2"></i>Academic & Financial Information</h5>
+                <div class="row g-3">
+                    {% for field in profile_form %}
+                    <div class="col-md-{% if field.name == 'address' %}12{% else %}6{% endif %}">
+                        <label class="form-label fw-semibold small">{{ field.label }}</label>
+                        {% if field.field.widget.input_type == 'select' or field.name in 'gender,study_level' %}
+                        <select name="{{ field.html_name }}" class="form-select {% if field.errors %}is-invalid{% endif %}">
+                            <option value="">-- Select --</option>
+                            {% for val, label in field.field.choices %}
+                            <option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% elif field.name == 'address' %}
+                        <textarea name="{{ field.html_name }}" class="form-control {% if field.errors %}is-invalid{% endif %}" rows="3">{{ field.value|default:'' }}</textarea>
+                        {% else %}
+                        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+                               class="form-control {% if field.errors %}is-invalid{% endif %}"
+                               value="{{ field.value|default:'' }}">
+                        {% endif %}
+                        {% if field.errors %}<div class="invalid-feedback">{{ field.errors.0 }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary px-5 fw-semibold">
+                        <i class="bi bi-save me-2"></i>Save Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

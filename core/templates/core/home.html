@@ -1,0 +1,168 @@
+{% extends 'core/base.html' %}
+{% block title %}Home - Scholarship & Bursary Management System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #1e429f 0%, #1a56db 50%, #0e9f6e 100%); min-height: 500px;" class="d-flex align-items-center">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-white">
+                <span class="badge bg-white text-primary fw-semibold mb-3 px-3 py-2">Transparent &amp; Fair Allocation</span>
+                <h1 class="display-4 fw-bold mb-4">Scholarship &amp; Bursary<br>Management System</h1>
+                <p class="lead mb-4 opacity-90">A transparent, efficient, and fair platform for managing scholarship and bursary applications. Empowering students to access educational funding with integrity.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg fw-semibold px-4">
+                        <i class="bi bi-grid me-2"></i>My Dashboard
+                    </a>
+                    <a href="{% url 'scholarships_list' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-search me-2"></i>Browse Scholarships
+                    </a>
+                    {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg fw-semibold px-4">
+                        <i class="bi bi-person-plus me-2"></i>Get Started
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <i class="bi bi-mortarboard-fill text-white" style="font-size: 12rem; opacity: 0.2;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="display-5 fw-bold text-primary">{{ stats.total_scholarships }}</div>
+                    <div class="text-muted">Total Programs</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="display-5 fw-bold text-success">{{ stats.active_scholarships }}</div>
+                    <div class="text-muted">Active Programs</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="display-5 fw-bold text-info">{{ stats.total_applications }}</div>
+                    <div class="text-muted">Applications</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="display-5 fw-bold text-warning">{{ stats.approved_applications }}</div>
+                    <div class="text-muted">Students Funded</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">Simple, transparent, and efficient process</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4 scholarship-card">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width:70px;height:70px;">
+                        <i class="bi bi-person-plus-fill text-primary" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">1. Register</h5>
+                    <p class="text-muted small">Create your student account and complete your profile with academic and financial information.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4 scholarship-card">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width:70px;height:70px;">
+                        <i class="bi bi-search text-success" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">2. Browse</h5>
+                    <p class="text-muted small">Explore available scholarships and bursaries that match your eligibility criteria.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4 scholarship-card">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width:70px;height:70px;">
+                        <i class="bi bi-file-earmark-text text-warning" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">3. Apply</h5>
+                    <p class="text-muted small">Submit your application with required documents including transcripts and proof of need.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4 scholarship-card">
+                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width:70px;height:70px;">
+                        <i class="bi bi-trophy-fill text-info" style="font-size:1.8rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">4. Get Funded</h5>
+                    <p class="text-muted small">Track your application status and receive notifications about your award decision.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Active Scholarships -->
+{% if scholarships %}
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Available Scholarships &amp; Bursaries</h2>
+                <p class="text-muted mb-0">Currently accepting applications</p>
+            </div>
+            <a href="{% url 'scholarships_list' %}" class="btn btn-outline-primary">View All <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for s in scholarships %}
+            <div class="col-md-4">
+                <div class="card h-100 scholarship-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge {% if s.scholarship_type == 'scholarship' %}bg-primary{% elif s.scholarship_type == 'bursary' %}bg-success{% else %}bg-info{% endif %} px-3 py-2">
+                                {{ s.get_scholarship_type_display }}
+                            </span>
+                            <span class="text-success fw-bold fs-5">${{ s.amount|floatformat:0 }}</span>
+                        </div>
+                        <h5 class="fw-semibold mb-2">{{ s.name }}</h5>
+                        <p class="text-muted small mb-3">{{ s.description|truncatechars:100 }}</p>
+                        <div class="d-flex justify-content-between text-muted small mb-3">
+                            <span><i class="bi bi-people me-1"></i>{{ s.available_slots }} slots left</span>
+                            <span><i class="bi bi-calendar me-1"></i>{{ s.application_deadline }}</span>
+                        </div>
+                        <a href="{% url 'scholarship_detail' s.pk %}" class="btn btn-primary btn-sm w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+{% if not user.is_authenticated %}
+<section class="py-5" style="background: linear-gradient(135deg, #1e429f, #0e9f6e);">
+    <div class="container text-center text-white py-3">
+        <h2 class="fw-bold mb-3">Ready to Apply?</h2>
+        <p class="lead mb-4 opacity-90">Join thousands of students who have benefited from our transparent allocation system.</p>
+        <a href="{% url 'register' %}" class="btn btn-light btn-lg fw-semibold px-5">
+            <i class="bi bi-person-plus me-2"></i>Create Free Account
+        </a>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
